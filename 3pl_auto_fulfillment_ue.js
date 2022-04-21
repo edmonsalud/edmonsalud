@@ -7,7 +7,7 @@
 define(['N/record', 'N/file', 'N/search'],
 
     function (record, file, search) {
-
+     
         /**
          * Function definition to be triggered before record is loaded.
          *
