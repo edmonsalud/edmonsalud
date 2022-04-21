@@ -4,271 +4,293 @@
  * @NModuleScope SameAccount
  * @Eric Gil
  */
- define(['N/record', 'N/file', 'N/search'],
+define(['N/record', 'N/file', 'N/search'],
 
- function (record, file, search) {
-  
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {string} scriptContext.type - Trigger type
-      * @param {Form} scriptContext.form - Current form
-      * @Since 2015.2
-      */
-     function beforeLoad(scriptContext) {
+        function (record, file, search) {
 
-     }
+            /**
+             * Function definition to be triggered before record is loaded.
+             *
+             * @param {Object} scriptContext
+             * @param {Record} scriptContext.newRecord - New record
+             * @param {string} scriptContext.type - Trigger type
+             * @param {Form} scriptContext.form - Current form
+             * @Since 2015.2
+             */
+            function beforeLoad(scriptContext) {
 
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {Record} scriptContext.oldRecord - Old record
-      * @param {string} scriptContext.type - Trigger type
-      * @Since 2015.2
-      */
-     function beforeSubmit(scriptContext) {
+            }
 
-     }
+            /**
+             * Function definition to be triggered before record is loaded.
+             *
+             * @param {Object} scriptContext
+             * @param {Record} scriptContext.newRecord - New record
+             * @param {Record} scriptContext.oldRecord - Old record
+             * @param {string} scriptContext.type - Trigger type
+             * @Since 2015.2
+             */
+            function beforeSubmit(scriptContext) {
 
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {Record} scriptContext.oldRecord - Old record
-      * @param {string} scriptContext.type - Trigger type
-      * @Since 2015.2
-      */
-     function afterSubmit(scriptContext) {
+                if (scriptContext.type == 'create' || scriptContext.type == 'create') {
+                    var rec = scriptContext.newRecord
+                    var cust_id = rec.getValue({
+                        fieldId: entity
+                    })
+                    var label 
+                    if (cust_id == 339923) {
 
-         if (scriptContext.type == 'create') {
+                        var shipmethod_id = rec.getValue({
+                            fieldId: 'shipmethod'
+                        })
 
+                        if (shipmethod_id == 3981 ){ // OLD DOMINION - ODFL
 
-// testing repo
+                        }
 
-             var so_id = scriptContext.newRecord.id
+                        if (shipmethod_id == 5406 || shipmethod_id ==  2048 ){ // UPS Ground
 
+                        }
 
 
-             var so_rec = record.load({
-                 type: 'salesorder',
-                 id: so_id,
-                 isDynamic: true
-             })
+                    }
+                }
 
-             var so_tranid = so_rec.getValue({
-                 fieldId: 'tranid'
-             })
+                /**
+                 * Function definition to be triggered before record is loaded.
+                 *
+                 * @param {Object} scriptContext
+                 * @param {Record} scriptContext.newRecord - New record
+                 * @param {Record} scriptContext.oldRecord - Old record
+                 * @param {string} scriptContext.type - Trigger type
+                 * @Since 2015.2
+                 */
+                function afterSubmit(scriptContext) {
 
-             var so_new_order_type = so_rec.getValue({
-                 fieldId: 'custbody_nsts_order_type'
-             })
+                    if (scriptContext.type == 'create') {
 
-             if (so_new_order_type == 5) {
 
-                 var so_order_date = so_rec.getText({
-                     fieldId: 'trandate'
-                 })
+                        // testing repo
 
+                        var so_id = scriptContext.newRecord.id
 
-                 var so_cust_name = so_rec.getText({
-                     fieldId: 'entity'
-                 })
 
-                 var so_cust_id = so_rec.getValue({
-                     fieldId: 'entity'
-                 })
 
-                 var so_address = so_rec.getText({
-                     fieldId: 'shipaddress'
-                 })
+                        var so_rec = record.load({
+                            type: 'salesorder',
+                            id: so_id,
+                            isDynamic: true
+                        })
 
-                 so_address = so_address.replace(/\n/g, ' ')
+                        var so_tranid = so_rec.getValue({
+                            fieldId: 'tranid'
+                        })
 
-                 var addr_rec = so_rec.getSubrecord('shippingaddress')
+                        var so_new_order_type = so_rec.getValue({
+                            fieldId: 'custbody_nsts_order_type'
+                        })
 
-                 var so_city = addr_rec.getValue('city')
-                 var so_state = addr_rec.getValue('state')
-                 var so_phone = addr_rec.getValue('addrphone')
-                 var so_zip = addr_rec.getValue('zip')
+                        if (so_new_order_type == 5) {
 
-                 var so_country = addr_rec.getValue('country')
+                            var so_order_date = so_rec.getText({
+                                fieldId: 'trandate'
+                            })
 
 
-                 var fieldLookUp = search.lookupFields({
-                     type: search.Type.CUSTOMER,
-                     id: so_cust_id,
-                     columns: ['email']
-                 });
+                            var so_cust_name = so_rec.getText({
+                                fieldId: 'entity'
+                            })
 
-                 so_rec.selectLine('item', 0)
+                            var so_cust_id = so_rec.getValue({
+                                fieldId: 'entity'
+                            })
 
-                 var so_item_name = so_rec.getCurrentSublistText('item', 'item')
-                 var so_item_qty = so_rec.getCurrentSublistValue('item', 'quantity')
-                 var so_item_rate = so_rec.getCurrentSublistValue('item', 'rate')
+                            var so_address = so_rec.getText({
+                                fieldId: 'shipaddress'
+                            })
 
-                 var so_email = fieldLookUp.email
+                            so_address = so_address.replace(/\n/g, ' ')
 
+                            var addr_rec = so_rec.getSubrecord('shippingaddress')
 
+                            var so_city = addr_rec.getValue('city')
+                            var so_state = addr_rec.getValue('state')
+                            var so_phone = addr_rec.getValue('addrphone')
+                            var so_zip = addr_rec.getValue('zip')
 
+                            var so_country = addr_rec.getValue('country')
 
 
-                 var rec = record.transform({
-                     fromType: 'salesorder',
-                     fromId: so_id,
-                     toType: 'itemfulfillment',
-                     isDynamic: true,
-                 });
+                            var fieldLookUp = search.lookupFields({
+                                type: search.Type.CUSTOMER,
+                                id: so_cust_id,
+                                columns: ['email']
+                            });
 
+                            so_rec.selectLine('item', 0)
 
-                 var rec_lc = rec.getLineCount({
-                     sublistId: 'item'
-                 })
+                            var so_item_name = so_rec.getCurrentSublistText('item', 'item')
+                            var so_item_qty = so_rec.getCurrentSublistValue('item', 'quantity')
+                            var so_item_rate = so_rec.getCurrentSublistValue('item', 'rate')
 
-                 rec.setValue('shipstatus', 'B')
+                            var so_email = fieldLookUp.email
 
-                 for (x = 0; x < rec_lc; x++) {
 
-                     rec.selectLine({
-                         sublistId: 'item',
-                         line: x
-                     })
 
-                     var itemtype = rec.getCurrentSublistValue({
-                         sublistId: 'item',
-                         fieldId: 'itemtype'
-                     })
 
-                     var quantity = rec.getCurrentSublistValue({
-                         sublistId: 'item',
-                         fieldId: 'quantity'
-                     })
 
-                     log.debug('itemtype', itemtype)
+                            var rec = record.transform({
+                                fromType: 'salesorder',
+                                fromId: so_id,
+                                toType: 'itemfulfillment',
+                                isDynamic: true,
+                            });
 
-                     if (itemtype == 'Kit') {
 
+                            var rec_lc = rec.getLineCount({
+                                sublistId: 'item'
+                            })
 
-                         rec.setCurrentSublistValue({
-                             sublistId: 'item',
-                             fieldId: 'itemreceive',
-                             value: true,
-                             //  ignoreFieldChange: true
-                         })
+                            rec.setValue('shipstatus', 'B')
 
-                         rec.setCurrentSublistValue({
-                             sublistId: 'item',
-                             fieldId: 'location',
-                             value: '1',
-                             //  ignoreFieldChange: true
-                         })
+                            for (x = 0; x < rec_lc; x++) {
 
-                         rec.commitLine({
-                             sublistId: 'item'
-                         })
-                     } else {
-                         rec.setCurrentSublistValue({
-                             sublistId: 'item',
-                             fieldId: 'itemreceive',
-                             value: true,
-                             //    ignoreFieldChange: true
-                         })
+                                rec.selectLine({
+                                    sublistId: 'item',
+                                    line: x
+                                })
 
-                         var quantity = rec.getCurrentSublistValue({
-                             sublistId: 'item',
-                             fieldId: 'quantity'
-                         })
+                                var itemtype = rec.getCurrentSublistValue({
+                                    sublistId: 'item',
+                                    fieldId: 'itemtype'
+                                })
 
-                         log.debug('quantity2',quantity)
+                                var quantity = rec.getCurrentSublistValue({
+                                    sublistId: 'item',
+                                    fieldId: 'quantity'
+                                })
 
-                         rec.setCurrentSublistValue({
-                             sublistId: 'item',
-                             fieldId: 'location',
-                             value: '1',
-                             // ignoreFieldChange: true
-                         })
+                                log.debug('itemtype', itemtype)
 
-                         var subrec = rec.getCurrentSublistSubrecord({
-                             sublistId: 'item',
-                             fieldId: 'inventorydetail'
-                         });
+                                if (itemtype == 'Kit') {
 
-                         if (subrec) {
 
-                             subrec.selectNewLine({
-                                 sublistId: 'inventoryassignment'
-                             });
-                             // Update quantity for subrecord. Note quantity total must equal quantity in item line
+                                    rec.setCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'itemreceive',
+                                        value: true,
+                                        //  ignoreFieldChange: true
+                                    })
 
-                             log.debug('subrec')
-                             subrec.setCurrentSublistValue({
-                                 sublistId: 'inventoryassignment',
-                                 fieldId: 'quantity',
-                                 value: quantity
-                             });
+                                    rec.setCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'location',
+                                        value: '1',
+                                        //  ignoreFieldChange: true
+                                    })
 
+                                    rec.commitLine({
+                                        sublistId: 'item'
+                                    })
+                                } else {
+                                    rec.setCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'itemreceive',
+                                        value: true,
+                                        //    ignoreFieldChange: true
+                                    })
 
-                             subrec.setCurrentSublistValue({
-                                 sublistId: 'inventoryassignment',
-                                 fieldId: 'issueinventorynumber',
-                                 value: 'Good'
-                             });
-                             subrec.commit();
-                         }
-                         rec.commitLine({
-                             sublistId: 'item'
-                         })
+                                    var quantity = rec.getCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'quantity'
+                                    })
 
-                     }
+                                    log.debug('quantity2', quantity)
 
+                                    rec.setCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'location',
+                                        value: '1',
+                                        // ignoreFieldChange: true
+                                    })
 
+                                    var subrec = rec.getCurrentSublistSubrecord({
+                                        sublistId: 'item',
+                                        fieldId: 'inventorydetail'
+                                    });
 
+                                    if (subrec) {
 
+                                        subrec.selectNewLine({
+                                            sublistId: 'inventoryassignment'
+                                        });
+                                        // Update quantity for subrecord. Note quantity total must equal quantity in item line
 
-                 }
-                 var if_id = rec.save();
+                                        log.debug('subrec')
+                                        subrec.setCurrentSublistValue({
+                                            sublistId: 'inventoryassignment',
+                                            fieldId: 'quantity',
+                                            value: quantity
+                                        });
 
 
-                 var if_rec = record.load({
-                     type: 'itemfulfillment',
-                     id: if_id,
-                     isDynamic: true
-                 })
+                                        subrec.setCurrentSublistValue({
+                                            sublistId: 'inventoryassignment',
+                                            fieldId: 'issueinventorynumber',
+                                            value: 'Good'
+                                        });
+                                        subrec.commit();
+                                    }
+                                    rec.commitLine({
+                                        sublistId: 'item'
+                                    })
 
-                 var if_tranid = if_rec.getValue({
-                     fieldId: 'tranid'
-                 })
+                                }
 
-                 so_item_name = so_item_name.split('-')
-                 so_item_name = so_item_name[0]
-                 var csv_header = 'Fulfilment Number,SO NUMBER,Order Type ,Order Date,Shipping Type,Customer Name,Address,City,State,Phone Number,Email Address,Ship to Customer Name,Ship to Address,Ship to Zip,Ship to City,Ship to State,Ship to Phone,Delivery Item No.,Item Code,Quantity,Ship to country ,Unit price'
-                 var csv_contents = if_tranid + ',' + so_tranid + ',' + so_new_order_type + ',' + so_order_date + ',' + so_new_order_type + ',' + so_cust_name + ',' + so_address + ',' + so_city + ',' + so_state + ',' + so_phone + ',' + so_email + ',' + so_cust_name + ',' + so_address + ',' + so_zip + ',' + so_city + ',' + so_state + ',' + so_phone + ',' + so_item_name + ',' + so_item_name + ',' + so_item_qty + ',' + so_country + ',' + so_item_rate
-                 var csv = csv_header + '\n' + csv_contents
 
-                 var fileObj = file.create({
-                     name: '3pl_outbound_' + so_tranid + '.csv',
-                     fileType: file.Type.CSV,
-                     contents: csv,
-                     encoding: file.Encoding.UTF8,
-                     folder: 14233,
-                     isOnline: true
-                 });
 
-                 fileObj.save();
-             }
-         }
 
 
-     }
+                            }
+                            var if_id = rec.save();
 
-     return {
-         //      beforeLoad: beforeLoad,
-         //   beforeSubmit: beforeSubmit,
-         afterSubmit: afterSubmit
-     };
 
- });
+                            var if_rec = record.load({
+                                type: 'itemfulfillment',
+                                id: if_id,
+                                isDynamic: true
+                            })
+
+                            var if_tranid = if_rec.getValue({
+                                fieldId: 'tranid'
+                            })
+
+                            so_item_name = so_item_name.split('-')
+                            so_item_name = so_item_name[0]
+                            var csv_header = 'Fulfilment Number,SO NUMBER,Order Type ,Order Date,Shipping Type,Customer Name,Address,City,State,Phone Number,Email Address,Ship to Customer Name,Ship to Address,Ship to Zip,Ship to City,Ship to State,Ship to Phone,Delivery Item No.,Item Code,Quantity,Ship to country ,Unit price'
+                            var csv_contents = if_tranid + ',' + so_tranid + ',' + so_new_order_type + ',' + so_order_date + ',' + so_new_order_type + ',' + so_cust_name + ',' + so_address + ',' + so_city + ',' + so_state + ',' + so_phone + ',' + so_email + ',' + so_cust_name + ',' + so_address + ',' + so_zip + ',' + so_city + ',' + so_state + ',' + so_phone + ',' + so_item_name + ',' + so_item_name + ',' + so_item_qty + ',' + so_country + ',' + so_item_rate
+                            var csv = csv_header + '\n' + csv_contents
+
+                            var fileObj = file.create({
+                                name: '3pl_outbound_' + so_tranid + '.csv',
+                                fileType: file.Type.CSV,
+                                contents: csv,
+                                encoding: file.Encoding.UTF8,
+                                folder: 14233,
+                                isOnline: true
+                            });
+
+                            fileObj.save();
+                        }
+                    }
+
+
+                }
+
+                return {
+                    //      beforeLoad: beforeLoad,
+                    //   beforeSubmit: beforeSubmit,
+                    afterSubmit: afterSubmit
+                };
+
+            });
