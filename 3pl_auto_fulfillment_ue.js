@@ -48,7 +48,7 @@ define(['N/record', 'N/file', 'N/search'],
             if (scriptContext.type == 'create') {
 
    
-// testing
+// testing repo
 
                 var so_id = scriptContext.newRecord.id
 
