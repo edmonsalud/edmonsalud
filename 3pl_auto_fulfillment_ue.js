@@ -47,8 +47,8 @@ define(['N/record', 'N/file', 'N/search'],
 
             if (scriptContext.type == 'create') {
 
-
-
+   
+// test
 
                 var so_id = scriptContext.newRecord.id
 
