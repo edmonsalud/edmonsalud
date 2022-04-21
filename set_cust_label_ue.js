@@ -78,8 +78,8 @@ define(['N/record', 'N/file', 'N/search'],
 
         return {
             //      beforeLoad: beforeLoad,
-            //   beforeSubmit: beforeSubmit,
-            afterSubmit: afterSubmit
+            beforeSubmit: beforeSubmit,
+            //afterSubmit: afterSubmit
         };
 
     });
