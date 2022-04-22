@@ -95,7 +95,7 @@ define(['N/log', 'N/search'],
             var corporate_accounts = '11000 Test AR \n 11001 A/R - Trade \n 11002 A/R - Trade - Consumer '
             var audio_accounts = '60001 Salaries'
             var audio_proc_accounts = '60002 Contingent Workforce'
-
+            var exemption_list = [261,262,300,303,304,306,308,309,313,314,315,316,317,318,348]
 
             if (scriptContext.sublistId == 'line' && (scriptContext.fieldId == 'account' || scriptContext.fieldId == 'department' || scriptContext.fieldId == 'class')) {
 
@@ -210,6 +210,10 @@ define(['N/log', 'N/search'],
 
 
                     }
+                }
+
+                else if(exemption_list.indexOf(parseInt(account)) != -1){
+                    alert('No Journal Entry transaction is allowed for account  ' + account_text + ' .')
                 }
 
             }
