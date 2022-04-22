@@ -95,7 +95,7 @@ define(['N/log', 'N/search'],
             var corporate_accounts = '11000 Test AR \n 11001 A/R - Trade \n 11002 A/R - Trade - Consumer '
             var audio_accounts = '60001 Salaries'
             var audio_proc_accounts = '60002 Contingent Workforce'
-            var exemption_list = [261,262,300,303,304,306,308,309,313,314,315,316,317,318,348]
+            var exemption_list = [261, 262, 300, 303, 304, 306, 308, 309, 313, 314, 315, 316, 317, 318, 348]
 
             if (scriptContext.sublistId == 'line' && (scriptContext.fieldId == 'account' || scriptContext.fieldId == 'department' || scriptContext.fieldId == 'class')) {
 
@@ -134,8 +134,19 @@ define(['N/log', 'N/search'],
                 log.debug('department', department)
                 log.debug('account', account)
                 log.debug('department_txt', department_txt)
+                log.debug('department_txt', account_text)
 
 
+                if ((account_text.indexOf('6') != 0 && account != '' ) && (department != 211 && department != '')) {
+                    alert('Accounts that do not start with 6XXXX should only have department 0000 - Corporate')
+                    currentRec.setCurrentSublistValue({
+                        sublistId: 'line',
+                        fieldId: 'department',
+                        value: '',
+                        ignoreFieldChange: true,
+                        forceSyncSourcing: true
+                    })
+                }
 
                 if (account == 511 && class_item != 132) {
 
@@ -212,8 +223,16 @@ define(['N/log', 'N/search'],
                     }
                 }
 
-                else if(exemption_list.indexOf(parseInt(account)) != -1){
+
+                if (exemption_list.indexOf(parseInt(account)) != -1) {
                     alert('No Journal Entry transaction is allowed for account  ' + account_text + ' .')
+                    currentRec.setCurrentSublistValue({
+                        sublistId: 'line',
+                        fieldId: 'account',
+                        value: '',
+                        ignoreFieldChange: true,
+                        forceSyncSourcing: true
+                    })
                 }
 
             }
