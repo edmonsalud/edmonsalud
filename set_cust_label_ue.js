@@ -51,7 +51,7 @@ define(['N/record', 'N/file', 'N/search'],
                     if (shipmethod_id == 5406 || shipmethod_id == 2048) { // UPS Ground
                         label = 1 // Ace Hardware Shipping Label
                     }
-
+//
 
                     if (label != undefined) {
                         rec.setValue({
