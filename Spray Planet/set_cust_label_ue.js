@@ -32,7 +32,7 @@ define(['N/record', 'N/file', 'N/search'],
          */
         function beforeSubmit(scriptContext) {
 
-            if (scriptContext.type == 'create' || scriptContext.type == 'create') {
+            if (scriptContext.type == 'create' || scriptContext.type == 'edit') {
                 var rec = scriptContext.newRecord
                 var cust_id = rec.getValue({
                     fieldId: entity
