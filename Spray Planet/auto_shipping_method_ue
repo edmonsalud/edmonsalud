@@ -128,7 +128,7 @@ define(['N/record', 'N/file', 'N/search'],
 
                 log.debug('rec_obj', rec_obj)
 
-                var shipping_method = getOrgshipmeth(so_curr_ship)
+                var shipping_method = getOrgshipmeth(so_curr_ship,so_amount,so_weight)
 
                 if (shipping_method > 0) {
 
@@ -384,28 +384,25 @@ define(['N/record', 'N/file', 'N/search'],
         }
 
 
-        function getOrgshipmeth(ship) {
+        function getOrgshipmeth(ship,ord_val,weight_va) {
 
-            var customrecord_ship_method_mappingSearchColName = search.createColumn({
-                name: 'name',
-                sort: search.Sort.ASC
-            });
-            var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
-                name: 'scriptid'
-            });
-            var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
-                name: 'custrecord_ship_method'
-            });
-            var customrecord_ship_method_mappingSearchObj = search.create({
-                type: 'customrecord_ship_method_mapping',
-                filters: [
-                    ['custrecord_hno_orig_ship_meth', 'anyof', ship],
-                ],
-                columns: [
-                    customrecord_ship_method_mappingSearchColName,
-                    customrecord_ship_method_mappingSearchColScriptId,
-                    customrecord_ship_method_mappingSearchColShippingMethod,
-                ],
+            const customrecord_ship_method_mappingSearchColName = search.createColumn({ name: 'name', sort: search.Sort.ASC });
+            const customrecord_ship_method_mappingSearchColScriptId = search.createColumn({ name: 'scriptid' });
+            const customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({ name: 'custrecord_ship_method' });
+            const customrecord_ship_method_mappingSearch = search.create({
+              type: 'customrecord_ship_method_mapping',
+              filters: [
+                ['custrecord_hno_orig_ship_meth', 'anyof', ship],
+                'AND',
+                ['formulanumeric: '+ord_val+'-{custrecord_order_value}', 'greaterthan', '0'],
+                'AND',
+                ['formulanumeric: '+weight_va+' - {custrecord_weight_threshold}', 'greaterthan', '0'],
+              ],
+              columns: [
+                customrecord_ship_method_mappingSearchColName,
+                customrecord_ship_method_mappingSearchColScriptId,
+                customrecord_ship_method_mappingSearchColShippingMethod,
+              ],
             });
 
             var shippingMethod
