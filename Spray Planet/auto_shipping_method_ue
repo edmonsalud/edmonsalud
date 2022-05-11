@@ -3,376 +3,427 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
- define(['N/record', 'N/file', 'N/search'],
+define(['N/record', 'N/file', 'N/search'],
 
- function (record, file, search) {
+    function (record, file, search) {
 
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {string} scriptContext.type - Trigger type
-      * @param {Form} scriptContext.form - Current form
-      * @Since 2015.2
-      */
-     function beforeLoad(scriptContext) {
+        /**
+         * Function definition to be triggered before record is loaded.
+         *
+         * @param {Object} scriptContext
+         * @param {Record} scriptContext.newRecord - New record
+         * @param {string} scriptContext.type - Trigger type
+         * @param {Form} scriptContext.form - Current form
+         * @Since 2015.2
+         */
+        function beforeLoad(scriptContext) {
 
-     }
+        }
 
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {Record} scriptContext.oldRecord - Old record
-      * @param {string} scriptContext.type - Trigger type
-      * @Since 2015.2
-      */
-     function beforeSubmit(scriptContext) {
+        /**
+         * Function definition to be triggered before record is loaded.
+         *
+         * @param {Object} scriptContext
+         * @param {Record} scriptContext.newRecord - New record
+         * @param {Record} scriptContext.oldRecord - Old record
+         * @param {string} scriptContext.type - Trigger type
+         * @Since 2015.2
+         */
+        function beforeSubmit(scriptContext) {
 
-         if (scriptContext.type == 'edit') {
-             var sales_order_rec = scriptContext.newRecord
-             var addr_rec = sales_order_rec.getSubrecord('shippingaddress')
-             var so_state = addr_rec.getValue('state')
-             so_state = getStateInternalId(so_state)
-             if (so_state == '' || so_state == null) {
-                 so_state = 158945
-             }
+            if (scriptContext.type == 'edit') {
+                var sales_order_rec = scriptContext.newRecord
+                var addr_rec = sales_order_rec.getSubrecord('shippingaddress')
+                var so_state = addr_rec.getValue('state')
+                so_state = getStateInternalId(so_state)
+                if (so_state == '' || so_state == null) {
+                    so_state = 158945
+                }
 
-             var so_cust_id = sales_order_rec.getValue('entity')
-             var so_amount = sales_order_rec.getValue('total')
-             var so_loc_code = sales_order_rec.getValue('custbody_sps_st_locationcodequalifier')
-             var so_weight = sales_order_rec.getValue('custbody1')
+                var so_cust_id = sales_order_rec.getValue('entity')
 
-             var rec_obj = {
-                 'state_id': '',
-                 'cust_id': '',
-                 'order_value': '',
-                 'location_code_qualifier': '',
-                 'weight': ''
-             }
+                var so_amount = sales_order_rec.getValue('total')
+                var so_loc_code = sales_order_rec.getValue('custbody_sps_st_locationcodequalifier')
+                var so_weight = sales_order_rec.getValue('custbody1')
 
-             rec_obj.state_id = so_state
-             rec_obj.cust_id = so_cust_id
-             rec_obj.order_value = so_amount
-             rec_obj.location_code_qualifier = so_loc_code
-             rec_obj.weight = so_weight
+                var rec_obj = {
+                    'state_id': '',
+                    'cust_id': '',
+                    'order_value': '',
+                    'location_code_qualifier': '',
+                    'weight': ''
+                }
 
-             log.debug('rec_obj', rec_obj)
+                rec_obj.state_id = so_state
+                rec_obj.cust_id = so_cust_id
+                rec_obj.order_value = so_amount
+                rec_obj.location_code_qualifier = so_loc_code
+                rec_obj.weight = so_weight
 
-             var shipping_method = getShippingMethod(rec_obj)
+                log.debug('rec_obj', rec_obj)
 
-             if (shipping_method == false) {
-                 var shipping_method = getShippingMethodDuplicate(rec_obj)
-             }
+                var shipping_method = getShippingMethod(rec_obj)
 
-
-             if (shipping_method) {
-                 sales_order_rec.setValue('shipmethod', shipping_method)
-             }
-
-             log.debug('shipmethod', shipping_method)
-
-         }
-     }
-
-     /**
-      * Function definition to be triggered before record is loaded.
-      *
-      * @param {Object} scriptContext
-      * @param {Record} scriptContext.newRecord - New record
-      * @param {Record} scriptContext.oldRecord - Old record
-      * @param {string} scriptContext.type - Trigger type
-      * @Since 2015.2
-      */
-     function afterSubmit(scriptContext) {
+                if (shipping_method == false) {
+                    var shipping_method = getShippingMethodDuplicate(rec_obj)
+                }
 
 
-         if (scriptContext.type == 'create') {
-             var sales_order_rec = scriptContext.newRecord
+                if (shipping_method) {
+                    sales_order_rec.setValue('shipmethod', shipping_method)
+                }
+
+                log.debug('shipmethod', shipping_method)
+
+            }
+        }
+
+        /**
+         * Function definition to be triggered before record is loaded.
+         *
+         * @param {Object} scriptContext
+         * @param {Record} scriptContext.newRecord - New record
+         * @param {Record} scriptContext.oldRecord - Old record
+         * @param {string} scriptContext.type - Trigger type
+         * @Since 2015.2
+         */
+        function afterSubmit(scriptContext) {
 
 
-             var sales_order_rec = record.load({
-                 type: 'salesorder',
-                 id: scriptContext.newRecord.id,
-                 isDynamic: true
-             })
-             var addr_rec = sales_order_rec.getSubrecord('shippingaddress')
-             var so_state = addr_rec.getValue('state')
-             so_state = getStateInternalId(so_state)
-             if (so_state == '' || so_state == null) {
-                 so_state = 158945
-             }
-
-             var so_cust_id = sales_order_rec.getValue('entity')
-             var so_amount = sales_order_rec.getValue('total')
-             var so_loc_code = sales_order_rec.getValue('custbody_sps_st_locationcodequalifier')
-             var so_weight = sales_order_rec.getValue('custbody1')
-
-             var rec_obj = {
-                 'state_id': '',
-                 'cust_id': '',
-                 'order_value': '',
-                 'location_code_qualifier': '',
-                 'weight': ''
-             }
-
-             rec_obj.state_id = so_state
-             rec_obj.cust_id = so_cust_id
-             rec_obj.order_value = so_amount
-             rec_obj.location_code_qualifier = so_loc_code
-             rec_obj.weight = so_weight
-
-             log.debug('rec_obj', rec_obj)
-
-             var shipping_method = getShippingMethod(rec_obj)
-
-             if (shipping_method == false) {
-                 var shipping_method = getShippingMethodDuplicate(rec_obj)
-             }
+            if (scriptContext.type == 'create') {
+                var sales_order_rec = scriptContext.newRecord
 
 
-             if (shipping_method) {
-                 sales_order_rec.setValue('shipmethod', shipping_method)
-                 sales_order_rec.save({
-                     enableSourcing: true
-                 })
-             }
+                var sales_order_rec = record.load({
+                    type: 'salesorder',
+                    id: scriptContext.newRecord.id,
+                    isDynamic: true
+                })
+                var addr_rec = sales_order_rec.getSubrecord('shippingaddress')
+                var so_state = addr_rec.getValue('state')
+                so_state = getStateInternalId(so_state)
+                if (so_state == '' || so_state == null) {
+                    so_state = 158945
+                }
 
-             log.debug('shipmethod', shipping_method)
+                var so_cust_id = sales_order_rec.getValue('entity')
+                var so_amount = sales_order_rec.getValue('total')
+                var so_curr_ship = sales_order_rec.getValue('shipmethod')
+                var so_loc_code = sales_order_rec.getValue('custbody_sps_st_locationcodequalifier')
+                var so_weight = sales_order_rec.getValue('custbody1')
 
-         }
+                var rec_obj = {
+                    'state_id': '',
+                    'cust_id': '',
+                    'order_value': '',
+                    'location_code_qualifier': '',
+                    'weight': ''
+                }
 
+                rec_obj.state_id = so_state
+                rec_obj.cust_id = so_cust_id
+                rec_obj.order_value = so_amount
+                rec_obj.location_code_qualifier = so_loc_code
+                rec_obj.weight = so_weight
 
-     }
+                log.debug('rec_obj', rec_obj)
 
+                var shipping_method = getOrgshipmeth(so_curr_ship)
 
-     function getShippingMethod(rec_obj) {
-         var state_id = rec_obj.state_id
-         var cust_id = rec_obj.cust_id
-         var order_value = rec_obj.order_value
-         var location_code_qualifier = rec_obj.location_code_qualifier
-         var weight = rec_obj.weight
-
-         var customrecord_ship_method_mappingSearchColName = search.createColumn({
-             name: 'name',
-             sort: search.Sort.ASC
-         });
-         var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
-             name: 'scriptid'
-         });
-         var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
-             name: 'custrecord_ship_method'
-         });
-         var customrecord_ship_method_mappingSearch = search.create({
-             type: 'customrecord_ship_method_mapping',
-             filters: [
-                 [
-                     [
-                         [
-                             ['custrecord_state_exclusion', 'noneof', state_id],
-                             'OR',
-                             ['custrecord_state_exclusion', 'is', '@NONE@'],
-                         ],
-                         'AND',
-                         [
-                             ['custrecord_state', 'anyof', state_id],
-                             'OR',
-                             ['custrecord_state', 'is', '@NONE@'],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['custrecord_customer_exclusion', 'noneof', cust_id],
-                             'OR',
-                             ['custrecord_customer_exclusion', 'is', '@NONE@'],
-                         ],
-                         'AND',
-                         [
-                             ['custrecord_customer_inclusion', 'anyof', cust_id],
-                             'OR',
-                             ['custrecord_customer_inclusion', 'anyof', '@NONE@'],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['formulanumeric: ' + order_value + ' - {custrecord_order_value}', 'greaterthan', '0'],
-                             'OR',
-                             ['custrecord_order_value', 'isempty', ''],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['custrecord_sps_st_locationcodequalifier', 'is', location_code_qualifier],
-                             'OR',
-                             ['custrecord_sps_st_locationcodequalifier', 'isempty', ''],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['formulanumeric: ' + weight + '-{custrecord_weight_threshold}', 'greaterthan', '0'],
-                         ],
-                     ],
-                 ],
-             ],
-             columns: [
-                 customrecord_ship_method_mappingSearchColShippingMethod
-             ],
-         });
-         // Note: Search.run() is limited to 4,000 results
-         // customrecord_ship_method_mappingSearch.run().each((result: search.Result): boolean => {
-         //   return true;
-         // });
-         var shippingMethod
-         var searchResultCount = customrecord_ship_method_mappingSearch.runPaged().count;
-         customrecord_ship_method_mappingSearch.run().each(function (result) {
+                if (shipping_method > 0) {
 
 
-             shippingMethod = result.getValue(customrecord_ship_method_mappingSearchColShippingMethod);
-             return true;
-         });
+                    sales_order_rec.setValue('shipmethod', shipping_method)
+                    sales_order_rec.save({
+                        enableSourcing: true
+                    })
+                } else {
 
-         if (searchResultCount > 1) {
-             var shippingMethod = false
-         }
+                    var shipping_method = getShippingMethod(rec_obj)
 
-         return shippingMethod
-     }
-
-
-
-
-     function getShippingMethodDuplicate(rec_obj) {
-         var state_id = rec_obj.state_id
-         var cust_id = rec_obj.cust_id
-         var order_value = rec_obj.order_value
-         var location_code_qualifier = rec_obj.location_code_qualifier
-         var weight = rec_obj.weight
-
-         var customrecord_ship_method_mappingSearchColName = search.createColumn({
-             name: 'name',
-             sort: search.Sort.ASC
-         });
-         var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
-             name: 'scriptid'
-         });
-         var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
-             name: 'custrecord_ship_method'
-         });
-         var customrecord_ship_method_mappingSearch = search.create({
-             type: 'customrecord_ship_method_mapping',
-             filters: [
-                 [
-                     [
-                         [
-                             ['custrecord_state_exclusion', 'noneof', state_id],
-                             'OR',
-                             ['custrecord_state_exclusion', 'is', '@NONE@'],
-                         ],
-                         'AND',
-                         [
-                             ['custrecord_state', 'anyof', state_id],
-                             'OR',
-                             ['custrecord_state', 'is', '@NONE@'],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['custrecord_customer_exclusion', 'noneof', cust_id],
-                             'OR',
-                             ['custrecord_customer_exclusion', 'is', '@NONE@'],
-                         ],
-                         'AND',
-                         [
-                             ['custrecord_customer_inclusion', 'anyof', cust_id],
-                             'OR',
-                             ['custrecord_customer_inclusion', 'anyof', '@NONE@'],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['formulanumeric: ' + order_value + ' - {custrecord_order_value}', 'greaterthan', '0'],
-                             'OR',
-                             ['custrecord_order_value', 'isempty', ''],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['custrecord_sps_st_locationcodequalifier', 'is', location_code_qualifier],
-                         ],
-                     ],
-                     'AND',
-                     [
-                         [
-                             ['formulanumeric: ' + weight + '-{custrecord_weight_threshold}', 'greaterthan', '0'],
-                         ],
-                     ],
-                 ],
-             ],
-             columns: [
-                 customrecord_ship_method_mappingSearchColShippingMethod
-             ],
-         });
-         // Note: Search.run() is limited to 4,000 results
-         // customrecord_ship_method_mappingSearch.run().each((result: search.Result): boolean => {
-         //   return true;
-         // });
-         var shippingMethod
-         var searchResultCount = customrecord_ship_method_mappingSearch.runPaged().count;
-         customrecord_ship_method_mappingSearch.run().each(function (result) {
+                    if (shipping_method == false) {
+                        var shipping_method = getShippingMethodDuplicate(rec_obj)
+                    }
 
 
-             shippingMethod = result.getValue(customrecord_ship_method_mappingSearchColShippingMethod);
-             return true;
-         });
+                    if (shipping_method) {
+                        sales_order_rec.setValue('shipmethod', shipping_method)
+                        sales_order_rec.save({
+                            enableSourcing: true
+                        })
+                    }
+                }
 
-         if (searchResultCount > 1) {
-             var shippingMethod = false
-         }
+                log.debug('shipmethod', shipping_method)
 
-         return shippingMethod
-     }
+            }
 
-     function getStateInternalId(state_abr) {
 
-         var stateSearchColId = search.createColumn({
-             name: 'id',
-             sort: search.Sort.ASC
-         });
-         var stateSearchObj = search.create({
-             type: 'state',
-             filters: [
-                 ['shortname', 'is', state_abr],
-             ],
-             columns: [
-                 stateSearchColId,
-             ],
-         });
-         // Note: Search.run() is limited to 4,000 results
-         // stateSearch.run().each((result: search.Result): boolean => {
-         //   return true;
-         // });
+        }
 
-         var internal_id
-         stateSearchObj.run().each(function (result) {
-             internal_id = result.getValue(stateSearchColId);
-             return true;
-         });
-         return internal_id
-     }
 
-     return {
-         //     beforeLoad: beforeLoad,
-         beforeSubmit: beforeSubmit,
-         afterSubmit: afterSubmit
-     };
+        function getShippingMethod(rec_obj) {
+            var state_id = rec_obj.state_id
+            var cust_id = rec_obj.cust_id
+            var order_value = rec_obj.order_value
+            var location_code_qualifier = rec_obj.location_code_qualifier
+            var weight = rec_obj.weight
 
- });
+            var customrecord_ship_method_mappingSearchColName = search.createColumn({
+                name: 'name',
+                sort: search.Sort.ASC
+            });
+            var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
+                name: 'scriptid'
+            });
+            var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
+                name: 'custrecord_ship_method'
+            });
+            var customrecord_ship_method_mappingSearch = search.create({
+                type: 'customrecord_ship_method_mapping',
+                filters: [
+                    [
+                        [
+                            [
+                                ['custrecord_state_exclusion', 'noneof', state_id],
+                                'OR',
+                                ['custrecord_state_exclusion', 'is', '@NONE@'],
+                            ],
+                            'AND',
+                            [
+                                ['custrecord_state', 'anyof', state_id],
+                                'OR',
+                                ['custrecord_state', 'is', '@NONE@'],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['custrecord_customer_exclusion', 'noneof', cust_id],
+                                'OR',
+                                ['custrecord_customer_exclusion', 'is', '@NONE@'],
+                            ],
+                            'AND',
+                            [
+                                ['custrecord_customer_inclusion', 'anyof', cust_id],
+                                'OR',
+                                ['custrecord_customer_inclusion', 'anyof', '@NONE@'],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['formulanumeric: ' + order_value + ' - {custrecord_order_value}', 'greaterthan', '0'],
+                                'OR',
+                                ['custrecord_order_value', 'isempty', ''],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['custrecord_sps_st_locationcodequalifier', 'is', location_code_qualifier],
+                                'OR',
+                                ['custrecord_sps_st_locationcodequalifier', 'isempty', ''],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['formulanumeric: ' + weight + '-{custrecord_weight_threshold}', 'greaterthan', '0'],
+                            ],
+                        ],
+                    ],
+                ],
+                columns: [
+                    customrecord_ship_method_mappingSearchColShippingMethod
+                ],
+            });
+            // Note: Search.run() is limited to 4,000 results
+            // customrecord_ship_method_mappingSearch.run().each((result: search.Result): boolean => {
+            //   return true;
+            // });
+            var shippingMethod
+            var searchResultCount = customrecord_ship_method_mappingSearch.runPaged().count;
+            customrecord_ship_method_mappingSearch.run().each(function (result) {
+
+
+                shippingMethod = result.getValue(customrecord_ship_method_mappingSearchColShippingMethod);
+                return true;
+            });
+
+            if (searchResultCount > 1) {
+                var shippingMethod = false
+            }
+
+            return shippingMethod
+        }
+
+
+
+
+        function getShippingMethodDuplicate(rec_obj) {
+            var state_id = rec_obj.state_id
+            var cust_id = rec_obj.cust_id
+            var order_value = rec_obj.order_value
+            var location_code_qualifier = rec_obj.location_code_qualifier
+            var weight = rec_obj.weight
+
+            var customrecord_ship_method_mappingSearchColName = search.createColumn({
+                name: 'name',
+                sort: search.Sort.ASC
+            });
+            var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
+                name: 'scriptid'
+            });
+            var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
+                name: 'custrecord_ship_method'
+            });
+            var customrecord_ship_method_mappingSearch = search.create({
+                type: 'customrecord_ship_method_mapping',
+                filters: [
+                    [
+                        [
+                            [
+                                ['custrecord_state_exclusion', 'noneof', state_id],
+                                'OR',
+                                ['custrecord_state_exclusion', 'is', '@NONE@'],
+                            ],
+                            'AND',
+                            [
+                                ['custrecord_state', 'anyof', state_id],
+                                'OR',
+                                ['custrecord_state', 'is', '@NONE@'],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['custrecord_customer_exclusion', 'noneof', cust_id],
+                                'OR',
+                                ['custrecord_customer_exclusion', 'is', '@NONE@'],
+                            ],
+                            'AND',
+                            [
+                                ['custrecord_customer_inclusion', 'anyof', cust_id],
+                                'OR',
+                                ['custrecord_customer_inclusion', 'anyof', '@NONE@'],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['formulanumeric: ' + order_value + ' - {custrecord_order_value}', 'greaterthan', '0'],
+                                'OR',
+                                ['custrecord_order_value', 'isempty', ''],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['custrecord_sps_st_locationcodequalifier', 'is', location_code_qualifier],
+                            ],
+                        ],
+                        'AND',
+                        [
+                            [
+                                ['formulanumeric: ' + weight + '-{custrecord_weight_threshold}', 'greaterthan', '0'],
+                            ],
+                        ],
+                    ],
+                ],
+                columns: [
+                    customrecord_ship_method_mappingSearchColShippingMethod
+                ],
+            });
+            // Note: Search.run() is limited to 4,000 results
+            // customrecord_ship_method_mappingSearch.run().each((result: search.Result): boolean => {
+            //   return true;
+            // });
+            var shippingMethod
+            var searchResultCount = customrecord_ship_method_mappingSearch.runPaged().count;
+            customrecord_ship_method_mappingSearch.run().each(function (result) {
+
+
+                shippingMethod = result.getValue(customrecord_ship_method_mappingSearchColShippingMethod);
+                return true;
+            });
+
+            if (searchResultCount > 1) {
+                var shippingMethod = false
+            }
+
+            return shippingMethod
+        }
+
+        function getStateInternalId(state_abr) {
+
+            var stateSearchColId = search.createColumn({
+                name: 'id',
+                sort: search.Sort.ASC
+            });
+            var stateSearchObj = search.create({
+                type: 'state',
+                filters: [
+                    ['shortname', 'is', state_abr],
+                ],
+                columns: [
+                    stateSearchColId,
+                ],
+            });
+            // Note: Search.run() is limited to 4,000 results
+            // stateSearch.run().each((result: search.Result): boolean => {
+            //   return true;
+            // });
+
+            var internal_id
+            stateSearchObj.run().each(function (result) {
+                internal_id = result.getValue(stateSearchColId);
+                return true;
+            });
+            return internal_id
+        }
+
+
+        function getOrgshipmeth(ship) {
+
+            var customrecord_ship_method_mappingSearchColName = search.createColumn({
+                name: 'name',
+                sort: search.Sort.ASC
+            });
+            var customrecord_ship_method_mappingSearchColScriptId = search.createColumn({
+                name: 'scriptid'
+            });
+            var customrecord_ship_method_mappingSearchColShippingMethod = search.createColumn({
+                name: 'custrecord_ship_method'
+            });
+            var customrecord_ship_method_mappingSearchObj = search.create({
+                type: 'customrecord_ship_method_mapping',
+                filters: [
+                    ['custrecord_hno_orig_ship_meth', 'anyof', ship],
+                ],
+                columns: [
+                    customrecord_ship_method_mappingSearchColName,
+                    customrecord_ship_method_mappingSearchColScriptId,
+                    customrecord_ship_method_mappingSearchColShippingMethod,
+                ],
+            });
+
+            var shippingMethod
+            var searchResultCount = customrecord_ship_method_mappingSearchObj.runPaged().count;
+            log.debug("customrecord_ship_method_mappingSearchObj result count", searchResultCount);
+            customrecord_ship_method_mappingSearchObj.run().each(function (result) {
+                shippingMethod = result.getValue(customrecord_ship_method_mappingSearchColShippingMethod);
+                return true;
+            });
+
+            return shippingMethod
+
+        }
+
+        return {
+            //     beforeLoad: beforeLoad,
+            beforeSubmit: beforeSubmit,
+            afterSubmit: afterSubmit
+        };
+
+    });
