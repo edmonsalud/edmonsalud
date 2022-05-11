@@ -31,7 +31,29 @@ define(['N/record', 'N/file', 'N/search'],
          */
         function beforeSubmit(scriptContext) {
 
-            if (scriptContext.type == 'edit') {}
+            if (scriptContext.type == 'create') {
+
+                var rec = scriptContext.newRecord
+
+                var far_app_str = rec.getValue({
+                    fieldId: 'custbody_farapp_storefront'
+                })
+
+                var shipping_cost = rec.getValue({
+                    fieldId: 'shippingcost'
+                })
+
+                if (shipping_cost > 0 && far_app_str == 'Amazon') {
+                    shipping_cost = shippingcost / 1.1
+                }
+
+
+                rec.setValue({
+                    fieldId: 'shippingcost',
+                    value: shipping_cost
+                })
+
+            }
         }
 
         /**
