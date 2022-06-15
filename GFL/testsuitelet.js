@@ -2,103 +2,39 @@
  * @NApiVersion 2.x
  * @NScriptType Suitelet
  */
- define(['N/ui/serverWidget', 'N/ui/message', 'N/record', 'N/url', 'N/email'], function (serverWidget, message, record, url, email) {
+define(['N/ui/serverWidget', 'N/ui/message', 'N/record', 'N/url', 'N/email', 'N/https'], function (serverWidget, message, record, url, email, https) {
     function onRequest(context) {
 
-        var form = serverWidget.createForm({
-            title: 'Send Email via Support Case'
-        });
-        form.addField({
-            id: 'custom_customer',
-            label: 'Customer',
-            type: serverWidget.FieldType.SELECT,
-            source: record.Type.CUSTOMER
-        });
-        form.addField({
-            id: 'custom_email',
-            label: 'Email Address (not required)',
-            type: serverWidget.FieldType.TEXT
-        });
-        form.addField({
-            id: 'custom_messagesubject',
-            label: 'Message Subject',
-            type: serverWidget.FieldType.TEXT
-        });
-        form.addField({
-            id: 'custom_messagebody',
-            label: 'Message Body',
-            type: serverWidget.FieldType.RICHTEXT
-        });
-        form.addSubmitButton({
-            label: 'Send Email'
-        });
 
-        if (context.request.method === 'POST') {
-            var customerId = context.request.parameters['custom_customer'];
-            var customerEmail = context.request.parameters['custom_email'];
-            var messageSubject = context.request.parameters['custom_messagesubject'];
-            var messageBody = context.request.parameters['custom_messagebody'];
+        var body_1 = {
+            "email": 'api@gflgroup.cubiic.com.au',
+            "password": 'RJQ3A36I',
+            "wmsCode": 'GFLGROUP'
+        }
+        var base_url = 'https://cubiicpublic.azurewebsites.net/'
 
-            try {
-                var caseId = 0;
-                var errorMsg = '';
-
-                var caseRec = record.create({
-                    type: record.Type.SUPPORT_CASE
-                });
-                caseRec.setValue({
-                    fieldId: 'company',
-                    value: customerId
-                });
-                // You can specify an email address to overide the customer's default
-                // Useful if you need to use an "Anonymous Customer" record and set the outgoing email address to the correct one
-                if (customerEmail != '') {
-                    caseRec.setValue({
-                        fieldId: 'email',
-                        value: customerEmail
-                    });
-                }
-                caseRec.setValue({
-                    fieldId: 'title',
-                    value: messageSubject
-                });
-                caseRec.setValue({
-                    fieldId: 'emailform',
-                    value: true
-                });
-                caseRec.setValue({
-                    fieldId: 'outgoingmessage',
-                    value: messageBody
-                });
-                caseId = caseRec.save({
-                    ignoreMandatoryFields: true
-                });
-
-            } catch (e) {
-                errorMsg = JSON.stringify(e);
-            }
-
-            if (caseId > 0 && errorMsg == '') {
-                var caseUrl = url.resolveRecord({
-                    recordType: record.Type.SUPPORT_CASE,
-                    recordId: caseId
-                });
-                form.addPageInitMessage({
-                    message: 'Email sent successfully. <a target="_blank" href="' + caseUrl + '">Open Support Case</a>',
-                    title: "Success!",
-                    type: message.Type.CONFIRMATION
-                });
-            } else {
-                form.addPageInitMessage({
-                    message: "Error occurred while sending case message: " + errorMsg,
-                    title: "Failed",
-                    type: message.Type.ERROR
-                });
-            }
+        var headers_1 = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
 
         }
 
-        context.response.writePage(form);
+
+        var response = https.post({
+
+            url: base_url + 'TokenByWmsCode',
+            headers: headers_1,
+            body: body_1,
+          
+        })
+
+        log.debug('response1',response)
+
+        log.debug('response', JSON.stringify(response))
+
+
     }
     return {
         onRequest: onRequest

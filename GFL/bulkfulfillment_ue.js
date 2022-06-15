@@ -58,28 +58,6 @@ define(['N/record', 'N/file', 'N/search'],
             }
 
 
-            if (scriptContext.type == 'xedit') {
-                var old_rec = scriptContext.oldRecord
-                var new_rec = scriptContext.newRecord
-
-                var old_ship_via = old_rec.getValue({
-                    fieldId: 'custbody_ship_via_test'
-                })
-
-                var new_ship_via = new_rec.getValue({
-                    fieldId: 'custbody_ship_via_test'
-                })
-
-
-                log.debug('old_ship_via', old_ship_via)
-                log.debug('new_ship_via', new_ship_via)
-
-                new_rec.setValue({
-                    fieldId: 'shipmethod',
-                    value: 'new_ship_via'
-
-                })
-            }
 
 
 
@@ -97,7 +75,62 @@ define(['N/record', 'N/file', 'N/search'],
         function afterSubmit(scriptContext) {
 
 
+            if (scriptContext.type == 'xedit') {
+                var old_rec = scriptContext.oldRecord
+                var new_rec = scriptContext.newRecord
 
+                var old_ship_via = old_rec.getValue({
+                    fieldId: 'custbody_ship_via_test'
+                })
+
+                var new_ship_via = new_rec.getValue({
+                    fieldId: 'custbody_ship_via_test'
+                })
+
+
+                log.debug('old_ship_via', old_ship_via)
+                log.debug('new_ship_via', new_ship_via)
+
+                if (old_ship_via != new_ship_via) {
+                    var rec = record.load({
+                        type: new_rec.type,
+                        id: new_rec.id,
+                        isDynamic: false
+                    })
+                    rec.setValue({
+                        fieldId: 'shipmethod',
+                        value: new_ship_via
+                    })
+
+                    var ifs_line_count = rec.getLineCount('recmachcustrecord_avt_ifs_record_transid')
+
+
+
+
+
+                    log.debug('ifs_line_count', ifs_line_count)
+                    rec.save({
+                        enableSourcing: true,
+                        ignoreMandatoryFields: true
+                    })
+
+                    for (x = 0; x < ifs_line_count; x++) {
+
+                        var if_ids = rec.getSublistValue({
+                            sublistId: 'recmachcustrecord_avt_ifs_record_transid',
+                            fieldId: 'id',
+                            line: x
+                        });
+
+                        record.delete({
+                            type: 'customrecord_avt_ifs_record',
+                            id: if_ids
+                        })
+
+                        log.debug('if_ids', if_ids)
+                    }
+                }
+            }
 
         }
 

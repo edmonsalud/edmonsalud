@@ -1,85 +1,104 @@
 /**
  * @NApiVersion 2.x
- * @NScriptType UserEventScript
- * @NModuleScope SameAccount
+ * @NScriptType Suitelet
  */
-define(['N/record', 'N/file', 'N/search'],
+define(['N/ui/serverWidget', 'N/ui/message', 'N/record', 'N/url', 'N/email', 'N/https'], function (serverWidget, message, record, url, email, https) {
+    function onRequest(context) {
 
-    function (record, file, search) {
+        var tracking_num = 'TMSNEW000000352'
 
-        /**
-         * Function definition to be triggered before record is loaded.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.newRecord - New record
-         * @param {string} scriptContext.type - Trigger type
-         * @param {Form} scriptContext.form - Current form
-         * @Since 2015.2
-         */
-        function beforeLoad(scriptContext) {
+        var rec_id = '25339188'
 
+        var body_1 = JSON.stringify({
+            'email': 'api@gflgroup.cubiic.com.au',
+            'password': 'RJQ3A36I',
+            'wmsCode': 'GFLGROUP'
+        })
+        var base_url = 'https://cubiicpublic.azurewebsites.net/'
+
+        var headers_1 = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
         }
 
-        /**
-         * Function definition to be triggered before record is loaded.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.newRecord - New record
-         * @param {Record} scriptContext.oldRecord - Old record
-         * @param {string} scriptContext.type - Trigger type
-         * @Since 2015.2
-         */
-        function beforeSubmit(scriptContext) {
+        var response = https.post({
+            url: base_url + 'TokenByWmsCode',
+            headers: headers_1,
+            body: body_1,
+        })
 
-            if (scriptContext.type == 'create') {
+        response = JSON.parse(response.body)
+        log.debug('response1', response)
+        var access_token = response.access_token
+        log.debug('response', access_token)
 
-                var rec = scriptContext.newRecord
-
-                var far_app_str = rec.getValue({
-                    fieldId: 'custbody_farapp_storefront'
-                })
-
-                var shipping_cost = rec.getValue({
-                    fieldId: 'shippingcost'
-                })
-
-                if (shipping_cost > 0 && far_app_str == 'Amazon') {
-                    shipping_cost = shippingcost / 1.1
-                }
-
-
-                rec.setValue({
-                    fieldId: 'shippingcost',
-                    value: shipping_cost
-                })
-
-            }
+        var headers_1 = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Authorization': access_token,
         }
 
-        /**
-         * Function definition to be triggered before record is loaded.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.newRecord - New record
-         * @param {Record} scriptContext.oldRecord - Old record
-         * @param {string} scriptContext.type - Trigger type
-         * @Since 2015.2
-         */
-        function afterSubmit(scriptContext) {
+        var response = https.get({
+            url: base_url + '/Consignment/GetEventsByConsignmentNo/' + tracking_num,
+            headers: headers_1
+        })
+
+        log.debug('response', JSON.stringify(response))
+
+        response = JSON.parse(response.body)
+        log.debug('response1', response)
+
+        var status = response.events[0].status
 
 
-            if (scriptContext.type == 'create') {}
+        log.debug('status', status)
+        var cubiic_status
 
 
+        switch (status) {
+            case 'Despatched':
 
+                cubiic_status = 1
 
+                break;
 
+            case 'In Transit':
+
+                cubiic_status = 2
+
+                break;
+
+            case 'On Board':
+
+                cubiic_status = 3
+
+                break;
+
+            case 'Delivered':
+
+                cubiic_status = 4
+
+                break;
+
+            case 'Cancelled':
+
+                cubiic_status = 5
+
+                break;
+
+            default:
+                cubiic_status = 6
         }
 
-        return {
-            //     beforeLoad: beforeLoad,
-            beforeSubmit: beforeSubmit,
-            afterSubmit: afterSubmit
-        };
+        log.debug('cubiic_status',cubiic_status)
 
-    });
+
+
+    }
+    return {
+        onRequest: onRequest
+    };
+});
